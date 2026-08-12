@@ -1,11 +1,13 @@
 # TinyInfiniTrain 作业报告
 
 ## 一、test 通过截图
+<img width="710" height="243" alt="image" src="https://github.com/user-attachments/assets/941feb58-0b7c-4573-9bf4-8469b8d3fca9" />
+<img width="698" height="273" alt="image" src="https://github.com/user-attachments/assets/086118c4-d474-4998-aa23-f8cacf3f4496" />
 
 ## 二、作业步骤
 
 > 将代码填入下面代码块中指定位置，并详细描述完成该作业的解决思路和遇到的问题。
-
+# 都见具体代码块即可，gpt2的内存问题已经修复好
 ### 作业一：autograd机制调用Neg kernel的实现
 
 难度：⭐
