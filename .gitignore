@@ -1,0 +1,11 @@
+build/
+.cache/
+.vscode/
+Data/
+cmake-*.sh
+*.sh.1
+build/
+cmake-*.sh
+*.sh.1
+build/
+Data/
