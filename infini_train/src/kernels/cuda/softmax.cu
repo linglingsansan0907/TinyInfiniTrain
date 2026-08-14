@@ -206,8 +206,8 @@ std::shared_ptr<Tensor> SoftmaxBackward(const std::shared_ptr<Tensor> &grad_outp
 }
 
 
-REGISTER_KERNEL(infini_train::DeviceType::kCUDA, "SoftmaxForward", SoftmaxForward);
-REGISTER_KERNEL(infini_train::DeviceType::kCUDA, "SoftmaxBackward", SoftmaxBackward);
+REGISTER_KERNEL(infini_train::DeviceType::kCUDA, SoftmaxForward, SoftmaxForward);
+REGISTER_KERNEL(infini_train::DeviceType::kCUDA, SoftmaxBackward, SoftmaxBackward);
 
 } // namespace infini_train::kernels::cuda
 

@@ -101,14 +101,14 @@ CausalSelfAttention::Forward(const std::vector<std::shared_ptr<infini_train::Ten
     att = att->MaskedFill(mask == 0, -std::numeric_limits<float>::infinity());
     
     
-    // // (bs, n_head, seq_len, seq_len)
-    // att = nn::function::Softmax(att, -1);
-    // // (bs, n_head, seq_len, n_embd / n_head)
-    // 强制CPU Softmax
-    auto att_cpu = std::make_shared<infini_train::Tensor>(
-        att->To(infini_train::Device(infini_train::DeviceType::kCPU, 0)));
-    att_cpu = nn::function::Softmax(att_cpu, -1);
-    att = std::make_shared<infini_train::Tensor>(att_cpu->To(x[0]->GetDevice()));
+    // (bs, n_head, seq_len, seq_len)
+    att = nn::function::Softmax(att, -1);
+    // (bs, n_head, seq_len, n_embd / n_head)
+    // // 强制CPU Softmax
+    // auto att_cpu = std::make_shared<infini_train::Tensor>(
+    //     att->To(infini_train::Device(infini_train::DeviceType::kCPU, 0)));
+    // att_cpu = nn::function::Softmax(att_cpu, -1);
+    // att = std::make_shared<infini_train::Tensor>(att_cpu->To(x[0]->GetDevice()));
     
     auto y = att->Matmul(v);
     // (bs, n_head, seq_len, n_embd / n_head) -> Transpose(1, 2) -> (bs, seq_len, n_head, n_embd / n_head)

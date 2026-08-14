@@ -198,7 +198,7 @@ void Tokenizer::GenerateText(infini_train::nn::Module &model, uint32_t batch_siz
         // }
         if (t < sequence_length) {
             x_buff[t] = next_token;
-            // x = std::make_shared<infini_train::Tensor>(x_tensor.To(device));
+            x = std::make_shared<infini_train::Tensor>(x_tensor.To(device));
         }
 
         // if (device.Type() == infini_train::DeviceType::kCUDA) {

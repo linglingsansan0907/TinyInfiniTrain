@@ -109,7 +109,7 @@ protected:
         tokenizer_bin = "../../Data/gpt2_tokenizer.bin";
         logits_reference = "../../Data/gpt2_logits_reference.bin";
 
-        device_flag = "cpu";
+        device_flag = "cuda";
         model_name = "gpt2";
         batch_size = 2;
         sequence_length = 64;

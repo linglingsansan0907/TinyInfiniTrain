@@ -79,8 +79,8 @@ std::shared_ptr<Tensor> SoftmaxBackward(const std::shared_ptr<Tensor> &grad_outp
     return grad_input;
 }
 
-REGISTER_KERNEL(infini_train::DeviceType::kCPU, "SoftmaxForward", SoftmaxForward);
-REGISTER_KERNEL(infini_train::DeviceType::kCPU, "SoftmaxBackward", SoftmaxBackward);
+REGISTER_KERNEL(infini_train::DeviceType::kCPU, SoftmaxForward, SoftmaxForward);
+REGISTER_KERNEL(infini_train::DeviceType::kCPU, SoftmaxBackward, SoftmaxBackward);
 
 } // namespace infini_train::kernels::cpu
 
