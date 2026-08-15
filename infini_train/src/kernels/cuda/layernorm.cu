@@ -122,6 +122,7 @@ __global__ void LayerNormBackwardKernel(const float *__restrict__ input, const f
     if (tid == 0) {
         float mean_d = dnorm_mean / embed_dim;
         float norm_d = (dnorm_norm_mean / embed_dim) * rstd_val - mean_d * mean_val * rstd_val;
+        // float norm_d = (dnorm_norm_mean / embed_dim) * rstd_val;
         shared_mean = mean_d;
         shared_norm = norm_d;
     }

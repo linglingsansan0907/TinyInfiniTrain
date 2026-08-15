@@ -166,6 +166,7 @@ __global__ void CrossEntropyBackwardKernel(const float *__restrict__ input_ptr, 
 std::shared_ptr<Tensor> CrossEntropyBackward(const std::shared_ptr<Tensor> &input,
                                              const std::shared_ptr<Tensor> &target,
                                              const std::shared_ptr<Tensor> &grad_output) {
+                                                
     const auto &input_dims = input->Dims();
     CHECK_GE(input_dims.size(), 2);
     const int bs = std::accumulate(input_dims.rbegin() + 1, input_dims.rend(), 1, std::multiplies<int64_t>{});

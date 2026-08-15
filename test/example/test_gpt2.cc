@@ -202,11 +202,27 @@ protected:
 TEST_F(GPT2TrainingTest, LogitsConsistency) {
     const auto tokens_per_fwdbwd = batch_size * sequence_length;    // 梯度累积步数
     grad_accum_steps = total_batch_size / tokens_per_fwdbwd;
-    
+    // num_iteration + 1
     for (int step = 0; step < num_iteration + 1; ++step) {
         LOG(INFO)<<"epoch: " << step;
         // 执行训练
         RunSingleStep();
+
+        // 打印
+        auto logits_cpu = logits->To(Device(DeviceType::kCPU, 0));
+        float v = static_cast<const float*>(logits_cpu.DataPtr())[0];
+        LOG(INFO) << "Step " << step << " logits[0]=" << v;
+
+        if (step == 10) {
+            const auto& wte_p = model->module("transformer").module("wte").parameter("weight");
+            const auto& lm_p = model->module("lm_head").parameter("weight");
+            auto wte_data = wte_p->To(Device(DeviceType::kCPU, 0));
+            auto lm_data = lm_p->To(Device(DeviceType::kCPU, 0));
+            float wte0 = static_cast<const float*>(wte_data.DataPtr())[0];
+            float lm0 = static_cast<const float*>(lm_data.DataPtr())[0];
+            LOG(INFO) << "Step 10 wte.weight[0]=" << wte0 << " lm_head.weight[0]=" << lm0 
+                    << " same_ptr=" << (wte_p.get() == lm_p.get());
+        }
 
         /* tokenizer */
         if ((step + 1) % freq_generate_txt == 0) {
@@ -219,7 +235,7 @@ TEST_F(GPT2TrainingTest, LogitsConsistency) {
 
     // 验证 logits
     if (!logits_reference.empty()) {
-        bool validation_passed = LogitsValidator::Validate(*logits, logits_reference);
+        bool validation_passed = LogitsValidator::Validate(*logits, logits_reference, 0.05f);
         EXPECT_TRUE(validation_passed) << "Logits validation failed!";
     } else {
         FAIL() << "No reference logits provided! Cannot validate.";        

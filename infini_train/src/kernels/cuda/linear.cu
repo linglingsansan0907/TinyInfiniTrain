@@ -245,6 +245,20 @@ __global__ void ReduceColumnsKernel(const float *__restrict__ input, float *__re
     }
 }
 
+template <int BLOCK_SIZE>
+__global__ void ReduceRowsKernel(const float *__restrict__ input, float *__restrict__ output, int num_rows,
+                                    int num_cols) {
+    using BlockReduce = cub::BlockReduce<float, BLOCK_SIZE>;
+    __shared__ typename BlockReduce::TempStorage temp_storage;
+
+    const int col = blockIdx.x;
+    float sum = 0.0f;
+    for (int row = threadIdx.x; row < num_rows; row += blockDim.x) { sum += input[row * num_cols + col]; }
+
+    const float reduced = BlockReduce(temp_storage).Sum(sum);
+    if (threadIdx.x == 0) { output[col] = reduced; }
+}
+
 std::tuple<std::shared_ptr<Tensor>, std::shared_ptr<Tensor>, std::shared_ptr<Tensor>>
 LinearBackward(const std::shared_ptr<Tensor> &input, const std::shared_ptr<Tensor> &weight, bool transpose,
                int64_t out_features, const std::shared_ptr<Tensor> &grad_output, const bool bias) {
@@ -317,13 +331,19 @@ LinearBackward(const std::shared_ptr<Tensor> &input, const std::shared_ptr<Tenso
     }
 
     // d_bias = \sum_i(i=0, bs-1) d_output[i]
+    // if (bias) {
+    //     constexpr int BLOCK_SIZE = 256;
+    //     int threads_per_block = BLOCK_SIZE;
+    //     int num_blocks = out_features;
+    //     ReduceColumnsKernel<BLOCK_SIZE>
+    //         <<<num_blocks, threads_per_block>>>(static_cast<const float *>(grad_output->DataPtr()),
+    //                                             static_cast<float *>(grad_bias->DataPtr()), out_features, bs);
+    // }
     if (bias) {
         constexpr int BLOCK_SIZE = 256;
-        int threads_per_block = BLOCK_SIZE;
-        int num_blocks = out_features;
-        ReduceColumnsKernel<BLOCK_SIZE>
-            <<<num_blocks, threads_per_block>>>(static_cast<const float *>(grad_output->DataPtr()),
-                                                static_cast<float *>(grad_bias->DataPtr()), out_features, bs);
+        ReduceRowsKernel<BLOCK_SIZE>
+            <<<out_features, BLOCK_SIZE>>>(static_cast<const float *>(grad_output->DataPtr()),
+                                           static_cast<float *>(grad_bias->DataPtr()), bs, out_features);
     }
 
     CUBLAS_CHECK(cublasDestroy(handle));

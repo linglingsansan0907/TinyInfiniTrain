@@ -1,5 +1,5 @@
 #include "infini_train/include/nn/modules/module.h"
-
+#include <unordered_set>
 #include <memory>
 #include <vector>
 
@@ -9,11 +9,30 @@
 namespace infini_train::nn {
 const std::string &Module::type() const { return type_; }
 
+// std::vector<std::shared_ptr<Tensor>> Module::Parameters() const {
+//     std::vector<std::shared_ptr<Tensor>> params;
+    
+//     for (auto &[_, param] : parameters_) { 
+//         params.push_back(param);
+//     }
+//     for (auto &[_, layer] : modules_) {
+//         for (auto &param : layer->Parameters()) { 
+//             params.push_back(param);
+//         }
+//     }
+//     return params;
+// }
+
 std::vector<std::shared_ptr<Tensor>> Module::Parameters() const {
     std::vector<std::shared_ptr<Tensor>> params;
-    for (auto &[_, param] : parameters_) { params.push_back(param); }
+    std::unordered_set<const Tensor *> seen;
+    for (auto &[_, param] : parameters_) {
+        if (seen.insert(param.get()).second) { params.push_back(param); }
+    }
     for (auto &[_, layer] : modules_) {
-        for (auto &param : layer->Parameters()) { params.push_back(param); }
+        for (auto &param : layer->Parameters()) {
+            if (seen.insert(param.get()).second) { params.push_back(param); }
+        }
     }
     return params;
 }

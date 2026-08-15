@@ -228,6 +228,15 @@ GPT2::Forward(const std::vector<std::shared_ptr<infini_train::Tensor>> &x) {
     return logits;
 }
 
+void GPT2::To(infini_train::Device device) {
+    nn::Module::To(device);
+
+    *mutable_module(kTransformerLayerName)
+        ->mutable_module(kWTELayerName)
+        ->mutable_parameter(nn::Embedding::kParamWeightName)
+        = module(kLMHeadLayerName).parameter(GPT2Linear::kParamWeightName);
+}
+
 std::unique_ptr<GPT2> GPT2::FromPretrained(ModelType model_type) {
     LOG(FATAL) << "Not implemented yet";
     return nullptr;
